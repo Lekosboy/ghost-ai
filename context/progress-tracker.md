@@ -12,6 +12,12 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Completed
 
+- Feature 02: Editor Chrome
+  - Created `components/editor/editor-navbar.tsx` — fixed top bar, sidebar toggle with `PanelLeftOpen`/`PanelLeftClose`, `isSidebarOpen` + `onSidebarToggle` props.
+  - Created `components/editor/project-sidebar.tsx` — fixed overlay sidebar, slides in from left, `isOpen` + `onClose` props, shadcn `Tabs` (My Projects / Shared), empty placeholder states, New Project button.
+  - Dialog pattern confirmed ready — shadcn `Dialog` already installed; `globals.css` maps all shadcn semantic variables to project tokens.
+  - TypeScript passes with no errors.
+
 - Feature 01: Design System
   - Installed and configured shadcn/ui (v4.6.0) with Tailwind v4 via `components.json`.
   - Added components: Button, Card, Dialog, Input, Tabs, Textarea, ScrollArea to `components/ui/`.
@@ -26,7 +32,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Feature 02 (TBD from feature-specs).
+- Feature 03 (TBD from feature-specs).
 
 ## Open Questions
 
