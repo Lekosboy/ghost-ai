@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d.get\\('version',''\\)\\)\")",
+      "Bash(npm show *)",
+      "Bash(npm install *)",
+      "Bash(mkdir -p \"c:\\\\Users\\\\Pires Family\\\\Desktop\\\\ghost-ai\\\\app\\\\sign-in\\\\[[...sign-in]]\")",
+      "Bash(mkdir -p \"c:\\\\Users\\\\Pires Family\\\\Desktop\\\\ghost-ai\\\\app\\\\sign-up\\\\[[...sign-up]]\")",
+      "Bash(npm run *)"
+    ]
+  }
+}
