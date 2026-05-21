@@ -45,5 +45,4 @@ Do not build actual dialogs yet.
 ### Check when done
 
 - new components compile without TypeScript errors
-- no lint erros
-- dialog pattern is ready for future use
+- no lint errors- dialog pattern is ready for future use
