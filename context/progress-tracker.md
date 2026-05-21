@@ -12,6 +12,15 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Completed
 
+- Feature 04: Project Dialogs
+  - Created `hooks/use-project-dialogs.ts` — single hook managing dialog state, form state, and loading state for all three dialogs. Includes mock project data and in-memory CRUD.
+  - Created `components/editor/dialogs/create-project-dialog.tsx` — project name input with live slug preview (updates on every keystroke).
+  - Created `components/editor/dialogs/rename-project-dialog.tsx` — prefilled input, current name shown in description, auto-focus, Enter submits.
+  - Created `components/editor/dialogs/delete-project-dialog.tsx` — destructive confirmation only, no input, confirm button uses `variant="destructive"`.
+  - Updated `components/editor/project-sidebar.tsx` — project items with rename/delete icon actions (owned projects only, visible on hover); shared tab items have no actions; mobile backdrop scrim with `onClose` on click.
+  - Updated `app/editor/page.tsx` — editor home screen (heading, description, New Project button); all three dialogs rendered at page level; all wire-ups connected.
+  - TypeScript: zero errors.
+
 - Feature 03: Authentication
   - Installed `@clerk/ui` for theme support.
   - Wrapped root layout (`app/layout.tsx`) with `ClerkProvider` using `dark` theme from `@clerk/ui/themes`. Appearance variables override with project CSS custom properties (no hardcoded colors).
@@ -43,7 +52,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Feature 04 (TBD from feature-specs).
+- Feature 05 (TBD from feature-specs).
 
 ## Open Questions
 
