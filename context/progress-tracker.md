@@ -46,6 +46,12 @@ Update this file whenever the current phase, active feature, or implementation s
   - Configured `globals.css` with dark-only theme: project CSS variables + shadcn semantic variables + `@theme inline` Tailwind token mapping.
   - TypeScript passes with no errors.
 
+- Feature 06: Project APIs
+  - Created `app/api/projects/route.ts` — `GET` lists the authenticated user's projects (ordered by `createdAt` desc); `POST` creates a project (name defaults to `"Untitled Project"` if absent or blank).
+  - Created `app/api/projects/[projectId]/route.ts` — `PATCH` renames a project (owner-only); `DELETE` deletes a project (owner-only). Both return `401` for unauthenticated requests and `403` for non-owner mutations.
+  - Fixed `lib/prisma.ts`: added explicit `PrismaClient` return type annotation with `as unknown as PrismaClient` cast on the Accelerate branch so TypeScript can resolve method overloads when the client is used in route handlers.
+  - `npm run build` passes with zero TypeScript errors.
+
 - Feature 05: Prisma Data Models
   - Created `prisma/models/project.prisma` with `Project` and `ProjectCollaborator` models, `ProjectStatus` enum (DRAFT/ARCHIVED), and all required indexes.
   - Created `lib/prisma.ts` as a cached singleton: branches on `DATABASE_URL` — `prisma+postgres://` uses Accelerate via `withAccelerate()`, otherwise uses `@prisma/adapter-pg` directly. Cached on `globalThis` in development for hot-reload safety.
@@ -54,13 +60,23 @@ Update this file whenever the current phase, active feature, or implementation s
   - Ran `prisma generate` — client generated to `app/generated/prisma`.
   - `npm run build` passes with zero TypeScript errors.
 
+- Feature 07: Wire Editor Home
+  - Created `lib/project-data.ts` — server-side data helper; fetches owned projects by `ownerId` and shared projects via `ProjectCollaborator` email lookup; returns `{ ownedProjects, sharedProjects }`.
+  - Created `hooks/use-project-actions.ts` — replaces the mock `use-project-dialogs.ts`; manages dialog state and calls real API endpoints. Create: generates `roomId = slug-suffix`, POSTs to `/api/projects` with the id, then navigates to `/editor/[roomId]`. Rename: PATCHes and calls `router.refresh()`. Delete: DELETEs and either redirects to `/editor` (if currently on that workspace) or refreshes.
+  - Updated `app/api/projects/route.ts` — POST now accepts an optional client-supplied `id` (validated against `/^[a-z0-9-]{1,100}$/`) so the project ID stays aligned with the Liveblocks room ID.
+  - Updated `components/editor/dialogs/create-project-dialog.tsx` — `slug` prop renamed to `roomId`; dialog preview now shows "Room ID:" label with the full `slug-suffix` value.
+  - Updated `components/editor/project-sidebar.tsx` — props changed from a single `projects` array to separate `ownedProjects` and `sharedProjects`; `ProjectItem` type imported from `use-project-actions`.
+  - Created `components/editor/editor-home-client.tsx` — extracted client wrapper containing sidebar toggle state, `useProjectActions` hook, and all dialog renders; accepts `ownedProjects`/`sharedProjects` as props.
+  - Updated `app/editor/page.tsx` — converted from `"use client"` to an async server component; fetches both project lists server-side via `getProjectsForUser()` and passes them to `EditorHomeClient`.
+  - `npm run build` passes with zero TypeScript errors.
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Feature 06 (TBD from feature-specs).
+- Feature 08 (TBD from feature-specs).
 
 ## Open Questions
 
