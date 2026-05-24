@@ -15,7 +15,7 @@ interface CreateProjectDialogProps {
   onOpenChange: (open: boolean) => void
   name: string
   onNameChange: (name: string) => void
-  slug: string
+  roomId: string
   isLoading: boolean
   onSubmit: () => void
 }
@@ -25,7 +25,7 @@ export function CreateProjectDialog({
   onOpenChange,
   name,
   onNameChange,
-  slug,
+  roomId,
   isLoading,
   onSubmit,
 }: CreateProjectDialogProps) {
@@ -51,10 +51,10 @@ export function CreateProjectDialog({
           </div>
 
           <p className="h-4 text-xs text-copy-muted">
-            {slug ? (
+            {roomId ? (
               <>
-                Slug:{" "}
-                <span className="font-mono text-copy-secondary">{slug}</span>
+                Room ID:{" "}
+                <span className="font-mono text-copy-secondary">{roomId}</span>
               </>
             ) : null}
           </p>
@@ -71,7 +71,7 @@ export function CreateProjectDialog({
           </Button>
           <Button
             onClick={onSubmit}
-            disabled={!name.trim() || !slug || isLoading}
+            disabled={!name.trim() || !roomId || isLoading}
           >
             {isLoading ? "Creating…" : "Create Project"}
           </Button>
