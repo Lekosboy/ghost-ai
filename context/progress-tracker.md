@@ -46,13 +46,21 @@ Update this file whenever the current phase, active feature, or implementation s
   - Configured `globals.css` with dark-only theme: project CSS variables + shadcn semantic variables + `@theme inline` Tailwind token mapping.
   - TypeScript passes with no errors.
 
+- Feature 05: Prisma Data Models
+  - Created `prisma/models/project.prisma` with `Project` and `ProjectCollaborator` models, `ProjectStatus` enum (DRAFT/ARCHIVED), and all required indexes.
+  - Created `lib/prisma.ts` as a cached singleton: branches on `DATABASE_URL` — `prisma+postgres://` uses Accelerate via `withAccelerate()`, otherwise uses `@prisma/adapter-pg` directly. Cached on `globalThis` in development for hot-reload safety.
+  - Installed `@prisma/extension-accelerate` for the Accelerate branch.
+  - Ran migration `20260524004121_init` — schema applied to the database.
+  - Ran `prisma generate` — client generated to `app/generated/prisma`.
+  - `npm run build` passes with zero TypeScript errors.
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Feature 05 (TBD from feature-specs).
+- Feature 06 (TBD from feature-specs).
 
 ## Open Questions
 
