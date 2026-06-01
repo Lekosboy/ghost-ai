@@ -11,6 +11,7 @@ interface ProjectSidebarProps {
   onClose: () => void
   ownedProjects: ProjectItem[]
   sharedProjects: ProjectItem[]
+  activeProjectId?: string
   onCreateProject: () => void
   onRenameProject: (project: ProjectItem) => void
   onDeleteProject: (project: ProjectItem) => void
@@ -21,6 +22,7 @@ export function ProjectSidebar({
   onClose,
   ownedProjects,
   sharedProjects,
+  activeProjectId,
   onCreateProject,
   onRenameProject,
   onDeleteProject,
@@ -77,9 +79,18 @@ export function ProjectSidebar({
                 <ul className="space-y-0.5">
                   {ownedProjects.map((project) => (
                     <li key={project.id}>
-                      <div className="group flex items-center gap-2 rounded-xl px-2 py-2 hover:bg-subtle cursor-pointer">
-                        <Folder className="h-4 w-4 shrink-0 text-copy-muted" />
-                        <span className="flex-1 truncate text-sm text-copy-primary">
+                      <div className={cn(
+                        "group flex items-center gap-2 rounded-xl px-2 py-2 cursor-pointer",
+                        project.id === activeProjectId ? "bg-brand-dim" : "hover:bg-subtle",
+                      )}>
+                        <Folder className={cn(
+                          "h-4 w-4 shrink-0",
+                          project.id === activeProjectId ? "text-brand" : "text-copy-muted",
+                        )} />
+                        <span className={cn(
+                          "flex-1 truncate text-sm",
+                          project.id === activeProjectId ? "text-brand" : "text-copy-primary",
+                        )}>
                           {project.name}
                         </span>
                         <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
@@ -123,9 +134,18 @@ export function ProjectSidebar({
                 <ul className="space-y-0.5">
                   {sharedProjects.map((project) => (
                     <li key={project.id}>
-                      <div className="flex items-center gap-2 rounded-xl px-2 py-2 hover:bg-subtle cursor-pointer">
-                        <Folder className="h-4 w-4 shrink-0 text-copy-muted" />
-                        <span className="flex-1 truncate text-sm text-copy-primary">
+                      <div className={cn(
+                        "flex items-center gap-2 rounded-xl px-2 py-2 cursor-pointer",
+                        project.id === activeProjectId ? "bg-brand-dim" : "hover:bg-subtle",
+                      )}>
+                        <Folder className={cn(
+                          "h-4 w-4 shrink-0",
+                          project.id === activeProjectId ? "text-brand" : "text-copy-muted",
+                        )} />
+                        <span className={cn(
+                          "flex-1 truncate text-sm",
+                          project.id === activeProjectId ? "text-brand" : "text-copy-primary",
+                        )}>
                           {project.name}
                         </span>
                       </div>

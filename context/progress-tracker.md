@@ -12,6 +12,13 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Completed
 
+- Feature 09: Share Dialog
+  - Created `lib/clerk-users.ts` — `getClerkUsersByEmail()` and `getClerkUserById()` look up Clerk users via `clerkClient()` and return `{ email, name, imageUrl }`. Display name falls back: `firstName lastName` → `username` → `null`.
+  - Created `app/api/projects/[projectId]/collaborators/route.ts` — `GET` returns `{ isOwner, owner, collaborators[] }` for any project member (owner or collaborator), owner enriched via `getClerkUserById(ownerId)`; `POST` invites by email (owner-only; validates email format; returns `409` on duplicate via Prisma `P2002`); `DELETE` removes by `?email=` query param (owner-only). All people are enriched with Clerk `name`/`imageUrl` and fall back to the email when no Clerk user is found.
+  - Created `components/editor/dialogs/share-dialog.tsx` — card-per-row layout matching the design mock. Title: "Share project". Owner view: workspace-link card with `Copy link` button (flips to `Copied!` for 1.5s), invite input card with mail icon + Invite button, and "People with access" list (owner row with `OWNER` badge first, then collaborators with `COLLABORATOR` badge and trash icon). Collaborator view: list-only with badges (no workspace-link card, no invite card, no remove buttons). Avatars use `next/image` with `unoptimized` for Clerk URLs; fallback is a purple gradient circle with a user icon.
+  - Updated `components/editor/workspace-client.tsx` — added `isShareOpen` state; wired `onShareClick` to open the share dialog; rendered `ShareDialog` with the current project's `id`.
+  - `npm run build` passes with zero TypeScript errors.
+
 - Feature 04: Project Dialogs
   - Created `hooks/use-project-dialogs.ts` — single hook managing dialog state, form state, and loading state for all three dialogs. Includes mock project data and in-memory CRUD.
   - Created `components/editor/dialogs/create-project-dialog.tsx` — project name input with live slug preview (updates on every keystroke).
@@ -60,6 +67,15 @@ Update this file whenever the current phase, active feature, or implementation s
   - Ran `prisma generate` — client generated to `app/generated/prisma`.
   - `npm run build` passes with zero TypeScript errors.
 
+- Feature 08: Editor Workspace Shell
+  - Created `lib/project-access.ts` — `getCurrentIdentity()` returns `{ userId, email }` from Clerk; `getProjectWithAccess()` checks owner or collaborator membership and returns the project or null.
+  - Created `components/editor/access-denied.tsx` — centered layout with lock icon, message, and link back to `/editor`.
+  - Updated `components/editor/editor-navbar.tsx` — added optional `projectName`, `onShareClick`, `isAISidebarOpen`, `onAISidebarToggle` props; workspace-specific controls render only when provided; existing home usage unchanged.
+  - Updated `components/editor/project-sidebar.tsx` — added optional `activeProjectId` prop; matching project items highlighted with `bg-brand-dim` background and `text-brand` icon/text.
+  - Created `components/editor/workspace-client.tsx` — client wrapper managing left sidebar state and AI sidebar state; renders navbar with project name + share + AI toggle, existing `ProjectSidebar` with active highlight, canvas placeholder, and fixed right AI sidebar placeholder.
+  - Created `app/editor/[roomId]/page.tsx` — async server component; unauthenticated users redirect to `/sign-in`; non-existent or unauthorized projects render `AccessDenied`; authorized users get the full workspace layout via `WorkspaceClient`.
+  - `npm run build` passes with zero TypeScript errors.
+
 - Feature 07: Wire Editor Home
   - Created `lib/project-data.ts` — server-side data helper; fetches owned projects by `ownerId` and shared projects via `ProjectCollaborator` email lookup; returns `{ ownedProjects, sharedProjects }`.
   - Created `hooks/use-project-actions.ts` — replaces the mock `use-project-dialogs.ts`; manages dialog state and calls real API endpoints. Create: generates `roomId = slug-suffix`, POSTs to `/api/projects` with the id, then navigates to `/editor/[roomId]`. Rename: PATCHes and calls `router.refresh()`. Delete: DELETEs and either redirects to `/editor` (if currently on that workspace) or refreshes.
@@ -76,7 +92,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Feature 08 (TBD from feature-specs).
+- Feature 10 (TBD from feature-specs).
 
 ## Open Questions
 
