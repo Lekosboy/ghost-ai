@@ -10,7 +10,8 @@ export async function getCurrentIdentity(): Promise<CurrentIdentity | null> {
   const { userId } = await auth()
   if (!userId) return null
   const user = await currentUser()
-  const email = user?.emailAddresses[0]?.emailAddress ?? null
+  const rawEmail = user?.emailAddresses[0]?.emailAddress
+  const email = rawEmail ? rawEmail.trim().toLowerCase() : null
   return { userId, email }
 }
 

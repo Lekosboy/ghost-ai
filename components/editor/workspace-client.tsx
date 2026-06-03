@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { Bot, Compass, Sparkles } from "lucide-react"
+import { Bot, Sparkles } from "lucide-react"
 import { EditorNavbar } from "@/components/editor/editor-navbar"
 import { ProjectSidebar } from "@/components/editor/project-sidebar"
+import { CanvasRoom } from "@/components/editor/canvas/canvas-room"
 import { CreateProjectDialog } from "@/components/editor/dialogs/create-project-dialog"
 import { RenameProjectDialog } from "@/components/editor/dialogs/rename-project-dialog"
 import { DeleteProjectDialog } from "@/components/editor/dialogs/delete-project-dialog"
@@ -28,6 +29,7 @@ export function WorkspaceClient({ project, ownedProjects, sharedProjects }: Work
     openCreate,
     openRename,
     openDelete,
+    openProject,
     closeDialog,
     createName,
     setCreateName,
@@ -41,7 +43,7 @@ export function WorkspaceClient({ project, ownedProjects, sharedProjects }: Work
   } = useProjectActions()
 
   return (
-    <div className="h-screen overflow-hidden bg-base">
+    <div className="relative h-screen overflow-hidden bg-base">
       <EditorNavbar
         isSidebarOpen={isSidebarOpen}
         onSidebarToggle={() => setIsSidebarOpen((prev) => !prev)}
@@ -60,35 +62,15 @@ export function WorkspaceClient({ project, ownedProjects, sharedProjects }: Work
         onCreateProject={openCreate}
         onRenameProject={openRename}
         onDeleteProject={openDelete}
+        onSelectProject={openProject}
       />
 
-      <main className="relative flex h-full flex-col items-center justify-center gap-5 pt-12 bg-base">
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(0,200,212,0.05) 0%, transparent 65%)" }}
-        />
-
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border-default bg-elevated">
-          <Compass className="h-8 w-8 text-brand" />
-        </div>
-
-        <p className="text-xs font-medium uppercase tracking-widest text-copy-faint">
-          Workspace Shell
-        </p>
-
-        <h1 className="max-w-md text-center text-2xl font-semibold text-copy-primary">
-          Canvas and collaboration tooling land here next.
-        </h1>
-
-        <p className="max-w-sm text-center text-sm leading-relaxed text-copy-muted">
-          This room is ready for the shared architecture canvas, durable AI
-          workflows, and real-time presence. For now, the shell is wired with
-          project context and navigation only.
-        </p>
+      <main className="absolute inset-x-0 bottom-0 top-12 bg-base">
+        <CanvasRoom roomId={project.id} />
       </main>
 
       {isAISidebarOpen && (
-        <aside className="fixed inset-y-0 right-0 z-40 flex w-80 flex-col border-l border-border-default bg-surface pt-12">
+        <aside className="fixed bottom-3 right-3 top-[3.75rem] z-40 flex w-80 flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface/80 shadow-2xl backdrop-blur-xl">
           {/* Header */}
           <div className="flex items-start justify-between border-b border-border-default px-4 py-3">
             <div>

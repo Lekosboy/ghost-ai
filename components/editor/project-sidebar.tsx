@@ -15,6 +15,7 @@ interface ProjectSidebarProps {
   onCreateProject: () => void
   onRenameProject: (project: ProjectItem) => void
   onDeleteProject: (project: ProjectItem) => void
+  onSelectProject: (project: ProjectItem) => void
 }
 
 export function ProjectSidebar({
@@ -26,6 +27,7 @@ export function ProjectSidebar({
   onCreateProject,
   onRenameProject,
   onDeleteProject,
+  onSelectProject,
 }: ProjectSidebarProps) {
 
   return (
@@ -40,8 +42,10 @@ export function ProjectSidebar({
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-border-default bg-surface transition-transform duration-300 ease-in-out",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed bottom-3 left-3 top-[3.75rem] z-40 flex w-72 flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface/80 shadow-2xl backdrop-blur-xl transition-all duration-300 ease-in-out",
+          isOpen
+            ? "translate-x-0 opacity-100"
+            : "pointer-events-none -translate-x-[calc(100%+0.75rem)] opacity-0"
         )}
       >
         {/* Header */}
@@ -79,7 +83,17 @@ export function ProjectSidebar({
                 <ul className="space-y-0.5">
                   {ownedProjects.map((project) => (
                     <li key={project.id}>
-                      <div className={cn(
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => onSelectProject(project)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault()
+                            onSelectProject(project)
+                          }
+                        }}
+                        className={cn(
                         "group flex items-center gap-2 rounded-xl px-2 py-2 cursor-pointer",
                         project.id === activeProjectId ? "bg-brand-dim" : "hover:bg-subtle",
                       )}>
@@ -134,7 +148,17 @@ export function ProjectSidebar({
                 <ul className="space-y-0.5">
                   {sharedProjects.map((project) => (
                     <li key={project.id}>
-                      <div className={cn(
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => onSelectProject(project)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault()
+                            onSelectProject(project)
+                          }
+                        }}
+                        className={cn(
                         "flex items-center gap-2 rounded-xl px-2 py-2 cursor-pointer",
                         project.id === activeProjectId ? "bg-brand-dim" : "hover:bg-subtle",
                       )}>
