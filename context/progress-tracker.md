@@ -12,6 +12,34 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Completed
 
+- Feature 12: Shape Panel
+  - Updated `types/canvas.ts` — added `NODE_SHAPES` (ordered `readonly NodeShape[]`) and `DEFAULT_NODE_COLOR` (`#1F1F1F`, the neutral-dark palette default) to satisfy the contract documented in `ui-context.md` and supply the drop default color.
+  - Created `components/editor/canvas/shape-drag.ts` — drag-and-drop contract shared by panel and canvas: `SHAPE_DRAG_MIME` (`application/ghost-shape`) and the `ShapeDragPayload` interface (`shape`, `width`, `height`).
+  - Created `components/editor/canvas/shape-panel.tsx` — floating pill-shaped toolbar pinned bottom-center (`absolute bottom-6 left-1/2 -translate-x-1/2`). Iterates `NODE_SHAPES`; each draggable button carries Lucide icon + default size from a `SHAPE_META` record. Default sizes follow the spec: rectangle/pill wider than tall (160×64 / 160×56), circle square (100×100), diamond slightly larger (150×110). `onDragStart` writes the JSON payload under `SHAPE_DRAG_MIME` with `effectAllowed = "move"`.
+  - Created `components/editor/canvas/canvas-node.tsx` — `CanvasNodeRenderer` for `CANVAS_NODE_TYPE`. Basic renderer per spec: every shape drawn as a bordered rectangle with the centered label, fill from `data.color` (inline style), four white connection handles. Shape-specific SVG visuals deferred to a later unit.
+  - Updated `components/editor/canvas/canvas.tsx` — `Canvas` now wraps `CanvasFlow` in `ReactFlowProvider` so the drop handler can call `useReactFlow().screenToFlowPosition`. Registered `nodeTypes` ({ canvasNode: CanvasNodeRenderer }). Wrapper div handles `onDragOver` (preventDefault + `dropEffect = "move"`) and `onDrop` (reads/parses payload, converts screen→canvas coords, builds a `CanvasNode` with empty label, default color, dragged shape, and `style` width/height, then dispatches an `"add"` node change via `onNodesChange`). Node IDs are `${shape}-${Date.now()}-${counter}`. Renders `<ShapePanel />` over the canvas.
+  - `npm run build` passes with zero TypeScript errors.
+  - Post-implementation fixes (from manual testing):
+    - **Connection handles all collapsed onto one point.** `canvas-node.tsx` originally rendered four handles (two `target`, two `source`) with no `id`. React Flow keys handles by `id`, so multiple handles of the same type with a `null` id are indistinguishable and every connection drag resolved to the same handle. Fixed by rendering one handle per side, each with a unique `id` (`top`/`right`/`bottom`/`left`) and `type="source"` — with the canvas in `ConnectionMode.Loose` a single per-side handle acts as both source and target, giving four independently connectable points.
+    - **Sidebar project rows did nothing on click.** Rows in `project-sidebar.tsx` had `cursor-pointer` styling but no click handler — only the hover rename/delete buttons were wired, so clicking a project never navigated. Added `openProject(project)` to `hooks/use-project-actions.ts` (`router.push(\`/editor/${project.id}\`)`), exposed it, and added an `onSelectProject` prop on the sidebar wired to `onClick` + `Enter`/`Space` keyboard handlers (`role="button"`/`tabIndex={0}`) on both My Projects and Shared rows. The rename/delete buttons already `stopPropagation`, so they don't trigger navigation. Wired `onSelectProject={openProject}` in both `editor-home-client.tsx` and `workspace-client.tsx`.
+    - **Side panels read as docked, not floating overlays.** The left project sidebar and right AI panel were `fixed` flush to the screen edges (`inset-y-0 left-0` / `inset-y-0 right-0`) with an opaque `bg-surface` and a single side border, so they looked docked rather than hovering over the canvas (the `ui-context.md` Layout Patterns call for "floating overlay with dark semi-transparent background and subtle border"). Restyled both as inset floating cards: `top-[3.75rem] bottom-3` with `left-3`/`right-3` gaps, `rounded-2xl`, full `border-border-subtle` border, `bg-surface/80` + `backdrop-blur-xl`, `shadow-2xl`, and `overflow-hidden`. The left sidebar's closed transform became `-translate-x-[calc(100%+0.75rem)]` (plus `opacity-0`/`pointer-events-none`) so it fully clears the new inset; the AI panel dropped its now-redundant `pt-12`. The full-bleed canvas (`absolute inset-x-0 bottom-0 top-12`) shows through behind them.
+
+- Feature 11: Base Canvas
+  - Created `types/canvas.ts` — shared canvas graph schema. `NodeShape` union (rectangle/diamond/circle/pill/cylinder/hexagon); `CanvasNodeData` (interface extending `Record<string, unknown>` so it satisfies the React Flow node-data constraint while staying an interface) with `label`, `color`, `shape`; `CANVAS_NODE_TYPE`/`CANVAS_EDGE_TYPE` literal constants (`canvasNode`/`canvasEdge`); and the typed `CanvasNode` / `CanvasEdge` aliases.
+  - Created `components/editor/canvas/canvas.tsx` — React Flow surface wired to Liveblocks via `useLiveblocksFlow<CanvasNode, CanvasEdge>({ suspense: true })` with empty initial nodes/edges. Passes synced `nodes`/`edges` and `onNodesChange`/`onEdgesChange`/`onConnect`/`onDelete` into `ReactFlow`. Uses `connectionMode={ConnectionMode.Loose}`, `fitView`, dot-pattern `<Background>`, and `<MiniMap>`. Imports `@xyflow/react/dist/style.css`. No custom node/edge rendering or controls.
+  - Created `components/editor/canvas/canvas-room.tsx` — client wrapper: `LiveblocksProvider` (`authEndpoint="/api/liveblocks-auth"`) → `RoomProvider` (`initialPresence={{ cursor: null, isThinking: false }}`) → `CanvasErrorBoundary` → `ClientSideSuspense` (spinner loading state) → `Canvas`.
+  - Created `components/editor/canvas/canvas-error-boundary.tsx` — class-based error boundary (no new dependency) rendering a "Canvas connection lost" fallback for Liveblocks connection/render errors.
+  - Updated `components/editor/workspace-client.tsx` — replaced the placeholder hero `<main>` with `<CanvasRoom roomId={project.id} />`; outer container now `relative` and `<main>` is `absolute inset-x-0 bottom-0 top-12` so the canvas fills below the fixed navbar. Dropped the unused `Compass` import.
+  - Note: `initialPresence` includes `isThinking: false` (the spec only listed `cursor: null`); the `Presence` type defined in Feature 10 requires both fields.
+  - `npm run build` passes with zero TypeScript errors.
+
+- Feature 10: Liveblocks Setup
+  - Updated `liveblocks.config.ts` — `Presence` defines `cursor: { x: number; y: number } | null` and `isThinking: boolean`; `UserMeta.info` defines `name`, optional `avatar`, and `color`.
+  - Installed `@liveblocks/node` (3.19.4) and added `LIVEBLOCKS_SECRET_KEY` and `NEXT_PUBLIC_LIVEBLOCKS_PUBLISHABLE_KEY` to `.env.local`.
+  - Created `lib/liveblocks.ts` — cached `Liveblocks` node client (hot-reload safe via `globalThis`) and `getCursorColorForUserId(userId)` that deterministically maps a user ID to one of 8 palette colors (canvas node text colors from `ui-context.md`).
+  - Created `app/api/liveblocks-auth/route.ts` — `POST` reads `room` from the body, requires Clerk auth (`401`), verifies project access via `getProjectWithAccess()` (`403`), ensures the Liveblocks room exists via `getOrCreateRoom(projectId, { defaultAccesses: [] })` (swallows `409` conflicts), and returns a session token authorized for that single project room with `FULL_ACCESS`. Session `userInfo` carries Clerk display name (falls back to email then `'Anonymous'`), optional avatar, and the generated cursor color.
+  - `npm run build` passes with zero TypeScript errors.
+
 - Feature 09: Share Dialog
   - Created `lib/clerk-users.ts` — `getClerkUsersByEmail()` and `getClerkUserById()` look up Clerk users via `clerkClient()` and return `{ email, name, imageUrl }`. Display name falls back: `firstName lastName` → `username` → `null`.
   - Created `app/api/projects/[projectId]/collaborators/route.ts` — `GET` returns `{ isOwner, owner, collaborators[] }` for any project member (owner or collaborator), owner enriched via `getClerkUserById(ownerId)`; `POST` invites by email (owner-only; validates email format; returns `409` on duplicate via Prisma `P2002`); `DELETE` removes by `?email=` query param (owner-only). All people are enriched with Clerk `name`/`imageUrl` and fall back to the email when no Clerk user is found.
@@ -92,7 +120,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Feature 10 (TBD from feature-specs).
+- Feature 13 (TBD from feature-specs).
 
 ## Open Questions
 

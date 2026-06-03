@@ -60,6 +60,10 @@ export function useProjectActions() {
     setOpenDialog("delete")
   }, [])
 
+  const openProject = useCallback((project: ProjectItem) => {
+    router.push(`/editor/${project.id}`)
+  }, [router])
+
   const handleCreate = useCallback(async () => {
     const trimmed = createName.trim()
     if (!trimmed || !roomId) return
@@ -120,6 +124,7 @@ export function useProjectActions() {
     openCreate,
     openRename,
     openDelete,
+    openProject,
     closeDialog,
     createName,
     setCreateName,

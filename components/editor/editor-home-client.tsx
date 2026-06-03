@@ -25,6 +25,7 @@ export function EditorHomeClient({ ownedProjects, sharedProjects }: EditorHomeCl
     openCreate,
     openRename,
     openDelete,
+    openProject,
     closeDialog,
     createName,
     setCreateName,
@@ -52,6 +53,7 @@ export function EditorHomeClient({ ownedProjects, sharedProjects }: EditorHomeCl
         onCreateProject={openCreate}
         onRenameProject={openRename}
         onDeleteProject={openDelete}
+        onSelectProject={openProject}
       />
 
       <main className="h-full pt-12 flex flex-col items-center justify-center gap-3">
